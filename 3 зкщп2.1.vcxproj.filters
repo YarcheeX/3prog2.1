@@ -57,7 +57,4 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>
-  <ItemGroup>
-    <Text Include="Old_data.txt" />
-  </ItemGroup>
 </Project>
