@@ -1,0 +1,861 @@
+void date::print_date()
+{
+    printf("Дата: %u.%u.%u\n", day, month, year);
+}
+
+void date::input_date()
+{
+    unsigned day, month, year;
+
+    printf("\nВвод даты:\n");
+
+    printf("День: ");
+    while (scanf_s("%u", &day) != 0)
+    {
+        printf("Ошибка, введите день: ");
+    }
+    while (getchar() != '\n');
+
+    printf("Месяц (число): ");
+    while (scanf_s("%u", &month) != 0)
+    {
+        printf("Ошибка, введите месяц (числом): ");
+    }
+    while (getchar() != '\n');
+
+    printf("Год: ");
+    while (scanf_s("%u", &year) != 0)
+    {
+        printf("Ошибка, введите год: ");
+    }
+    while (getchar() != '\n');
+
+    this->set_date(day, month, year);
+}
+
+
+коммент старый
+class comment {
+
+private:
+	char* text;                   //текст комментария
+	char* author;                 //имя автора комментария
+	unsigned int answers_count;   //количество ответов на комментарий
+public:
+	date upload_date;             //дата загрузки комментария
+	comment* answers;             //ответы на коментарий
+
+	comment();
+	comment(date date);
+	comment(date date, char* text);
+	comment(date date, char* text, char* author);
+	comment(const comment& other); //конструктор копирования
+	~comment();
+
+	const comment& operator = (const comment& other); //перегрузка оператора =
+	void add_answer(const comment& ans); //метод добавления ответа к комментарию
+	void set_author(char* name); //сеттер автора комментария
+	void set_text(char* text); //сеттер текста комментария
+	void print_comment(); //распечатать комментарий
+	void input_comment(); //ввести комментарий
+};
+
+
+comment::comment()
+{
+	upload_date = date();
+	text = nullptr;
+	author = nullptr;
+	answers_count = 0;
+	answers = nullptr;
+}
+
+comment::comment(date date):comment()
+{
+	this->upload_date = date;
+}
+
+
+comment::comment(date date, char* text) :comment(date)
+{
+	this->text = _strdup(text);
+}
+
+comment::comment(date date, char* text,char* author):comment(date, text)
+{
+	this->author = _strdup(author);
+}
+
+comment::comment(const comment& other)
+{
+	*this = other;
+}
+
+comment::~comment()
+{
+	free(this->text);
+	free(this->author);
+
+	for (unsigned i = 0; i < answers_count; i++) {
+		free(answers[i].text);
+		free(answers[i].author);
+	}
+
+	(answers_count == 1) ? delete answers : delete[] answers;
+}
+
+const comment& comment::operator=(const comment& other)
+{
+	free(author);
+	(other.author == nullptr) ? this->author = nullptr : this->author = _strdup(other.author);
+
+	free(text);
+	(other.text == nullptr) ? this->text = nullptr : this->text = _strdup(other.text);
+
+	this->upload_date = other.upload_date;
+
+	(answers_count == 1) ? delete answers : delete[] answers;
+
+	this->answers_count = other.answers_count;
+
+	if (answers_count == 0) {
+		this->answers = nullptr;
+	}
+	else {
+		if (answers_count == 1)
+			answers = new comment(other);
+		else {
+			answers = new comment[answers_count];
+			for (unsigned i = 0; i < answers_count; i++)
+			{
+				this->answers[i] = other.answers[i];
+			}
+		}
+	}
+
+	return *this;
+}
+
+void comment::add_answer(const comment& ans)
+{
+	answers_count += 1;
+	if (this->answers == nullptr) {
+		answers = new comment(ans);
+	}
+	else {
+		comment* temp = new comment[answers_count];
+		for (unsigned i = 0; i < answers_count - 1; i++)
+			temp[i] = answers[i];
+		temp[answers_count - 1] = ans;
+		delete[] answers;
+		answers = new comment[answers_count];
+		for (unsigned i = 0; i < answers_count; i++)
+			answers[i] = temp[i];
+		delete[] temp;
+	}
+}
+
+void comment::set_author(char* name)
+{
+	if (this->author != nullptr)free(this->author);
+	this->author = _strdup(name);
+}
+
+void comment::set_text(char* text)
+{
+	if (this->text != nullptr)free(this->text);
+	this->text = _strdup(text);
+}
+
+void comment::print_comment()
+{
+	printf("Автор: %s | ", author);
+	upload_date.print_date();
+	printf("Текст: %s\nОтветов: %u\n", text, answers_count);
+}
+
+void comment::input_comment()
+{
+	printf("Ввод даты коментария:\n");
+	upload_date.input_date();
+	printf("Ввести автора? (Да - 1, нет - 2):");
+	int a;
+	while (scanf_s("%d", &a) != 1 || ((a != 1) && (a != 2))) {
+		while (getchar() != '\n');
+		printf("Ошибка. Выберите один из предложенных вариантов: ");
+	}
+	while (getchar() != '\n');
+	if (a == 1)
+	{
+		char aut[30];
+		printf("Ввод: ");
+		fgets(aut, 30, stdin);
+		*strchr(aut, '\n') = '\0';
+		this->set_author(aut);
+	}
+	else
+	{
+		char aut[] = { "Аноним" };
+		this->set_author(aut);
+	}
+
+	printf("Ввести текст? (Да - 1, нет - 2)");
+	while (scanf_s("%d", &a) != 1 || ((a != 1) && (a != 2))) {
+		while (getchar() != '\n');
+		printf("Ошибка. Выберите один из предложенных вариантов: ");
+	}
+	while (getchar() != '\n');
+	if (a == 1)
+	{
+		char txt[300];
+		printf("Ввод: ");
+		fgets(txt, 300, stdin);
+		*strchr(txt, '\n') = '\0';
+		this->set_author(txt);
+	}
+	else
+	{
+		char txt[] = { "Пустой текст" };
+		this->set_author(txt);
+	}
+
+}
+
+пост старый
+
+class post {  //базовый класс для photo и video
+protected:
+	char* name;            //название поста
+	char* description;     //описание поста
+	unsigned int views = 0;          //просмотры
+	unsigned int likes = 0;          //лайки
+	unsigned int comments_count = 0; //кол-во комментариев
+
+public:
+	date upload_date;                //дата выгрузки поста
+	comment* comments;     //комментарии
+	
+	post(){
+		name = nullptr;
+		description = nullptr;
+		views = 0;
+		likes = 0;
+		comments = nullptr;
+		comments_count = 0;
+	}
+
+	virtual void print_post() = 0; //чистый виртуальный метод
+	virtual void input_post() = 0; //ввод поста
+
+	void set_name(char* name); //сеттер названия
+	void set_description(char* descr); //сеттер описания
+	void add_comment(const comment& comm); //добавить комментарий
+	void watch(unsigned views); //просмотреть пост
+	void like(unsigned a); //лайкнуть
+};
+
+
+
+class video : public post {
+
+public:
+	Time duration;
+	video();//перегружает конструктор базового класса (в определении)
+	video(char* name);
+	video(char* name, char* descr);
+	video(char* name, char* descr, Time duration);
+	video(char* name, char* descr, Time duration, date upload_date);
+	video(const video& other); //конструктор копирования
+	~video();
+	
+	const video& operator = (const video& other); //перегрузка оператора = для этого класса
+	void set_duration(int hour, int min, int sec); //сеттер длительности
+	void print_post(); //перегруженный метод базового класса
+	void input_post(); //перегруженный метод базового класса
+
+};
+
+class photo : public post {
+
+public:
+	photo();//перегружает конструктор базового класса (в определении)
+	photo(char* name);
+	photo(char* name, char* descr);
+	photo(char* name, char* descr, date date);
+	photo(const photo& other); //конструктор копирования
+	~photo();
+
+	const photo& operator = (const photo& other); //перегрузка оператора = для этого класса
+	void print_post(); //перегруженный метод базового класса
+	void input_post(); //перегруженный метод базового класса
+
+};
+
+void post::set_name(string name){
+
+	this->name = name;
+}
+
+void post::set_description(string descr){
+
+	this->description = descr;
+}
+
+void post::add_comment(const comment& comm)
+{
+	comments_count += 1;
+	if (comments == nullptr) {
+		comments = new comment(comm);
+	}
+	else {
+		comment* temp = new comment[comments_count];
+		for (unsigned i = 0; i < comments_count - 1; i++)
+			temp[i] = comments[i];
+		temp[comments_count - 1] = comm;
+		delete[] comments;
+		comments = new comment[comments_count];
+		for (unsigned i = 0; i < comments_count; i++)
+			comments[i] = temp[i];
+		delete[] temp;
+	}
+}
+
+void post::watch(unsigned views)
+{
+	this->views += views;
+	this->print_post();
+	printf("Описание: %s\nКомментарии:\n", description);
+	for (unsigned i = 0; i < comments_count; i++) {
+		printf("%d)", i);
+		comments[i].print_comment();
+	}
+}
+
+void post::like(unsigned a){
+
+	this->likes += a;
+}
+
+void video::print_post()
+{
+	printf("Название: %s\n", name.c_str());
+	printf("Длительность: %d:%d:%d\n", duration.get_hour(), duration.get_min(), duration.get_sec());
+	printf("Просмотры: %u | Лайки: %u | Комментарии: %u\n", views, likes, comments_count);
+	upload_date.print_date();
+
+}
+
+video::video() :post() {
+
+	duration = {0,0,0};
+}
+
+video::video(string name) : video(){
+
+	this->set_name(name);
+}
+
+video::video(string name, string descr) : video(name){
+
+	this->set_description(descr);
+}
+
+video::video(string name, string descr, Time duration) : video(name,descr){
+
+	this->duration = duration;
+}
+
+video::video(string name, string descr, Time duration, date upload_date) : video(name, descr, duration) {
+
+	this->upload_date = upload_date;
+}
+
+video::video(const video& other){
+
+	*this = other;
+}
+
+video::~video() {
+
+	(comments_count == 1) ? delete comments : delete[] comments;
+}
+
+
+
+void video::input_post()
+{
+	printf("Ввод видео:\n");
+	upload_date.input_date();
+
+	printf("Ввести название видео? (Да - 1, нет - 2):");
+	int a;
+	while (scanf_s("%d", &a) != 1 || ((a != 1) && (a != 2))) {
+		while (getchar() != '\n');
+		printf("Ошибка. Выберите один из предложенных вариантов: ");
+	}
+	while (getchar() != '\n');
+	if (a == 1)
+	{
+		char name[30];
+		printf("Ввод: ");
+		fgets(name, 30, stdin);
+		*strchr(name, '\n') = '\0';
+		this->set_name(name);
+	}
+
+	printf("Ввести описание? (Да - 1, нет - 2)");
+	while (scanf_s("%d", &a) != 1 || ((a != 1) && (a != 2))) {
+		while (getchar() != '\n');
+		printf("Ошибка. Выберите один из предложенных вариантов: ");
+	}
+	while (getchar() != '\n');
+	if (a == 1)
+	{
+		char descr[300];
+		printf("Ввод: ");
+		fgets(descr, 300, stdin);
+		*strchr(descr, '\n') = '\0';
+		this->set_description(descr);
+	}
+	
+	printf("Ввести длительность видео? (Да - 1, нет - 2)");
+	while (scanf_s("%d", &a) != 1 || ((a != 1) && (a != 2))) {
+		while (getchar() != '\n');
+		printf("Ошибка. Выберите один из предложенных вариантов: ");
+	}
+	while (getchar() != '\n');
+	if (a == 1) {
+		int min, sec, hour;
+		printf("Введите часы: ");
+		while (scanf_s("%d", &hour) != 0) {
+			printf("Ошибка. Введите часы: ");
+		}
+		while (getchar() != '\n');
+		printf("Введите минуты:");
+		while (scanf_s("%d", &min) != 0) {
+			printf("Ошибка. Введите минуты: ");
+		}
+		while (getchar() != '\n');
+		
+		printf("Введите секунды:");
+		while (scanf_s("%d", &sec) != 0) {
+			printf("Ошибка. Введите секунды: ");
+		}
+		while (getchar() != '\n');
+
+		this->set_duration(hour, min, sec);
+	}
+}
+
+
+const video& video::operator=(const video& other)
+{
+	free(this->name);
+	(other.name == nullptr) ? this->name = nullptr : this->name = _strdup(other.name);
+
+	free(description);
+	(other.description == nullptr) ? this->description = nullptr : this->description = _strdup(other.description);
+
+	views = other.views;
+	likes = other.likes;
+	upload_date = other.upload_date;
+
+	(comments_count == 1) ? delete comments : delete[] comments;
+
+	comments_count = other.comments_count;
+	if (comments_count == 0) {
+		this->comments = nullptr;
+	}
+	else {
+		if (comments_count == 1)
+			comments = new comment(other.comments[0]);
+		else {
+			comments = new comment[comments_count];
+			for (unsigned i = 0; i < comments_count; i++)
+			{
+				this->comments[i] = other.comments[i];
+			}
+		}
+	}
+
+	duration = other.duration;
+
+	return *this;
+}
+
+void video::set_duration(int hour, int min, int sec) {
+
+	duration.set_time(hour, min, sec);
+}
+
+photo::photo() :post(){};
+
+photo::photo(char* name) : photo(){
+
+	this->set_name(name);
+}
+
+photo::photo(char* name, char* descr) : photo(name){
+
+	this->set_description(descr);
+}
+
+photo::photo(char* name, char* descr, date date) : photo(name,descr){
+
+	this->upload_date = date;
+}
+
+photo::photo(const photo& other) {
+	
+	*this = other;
+}
+
+photo::~photo(){
+
+	free(name);
+	free(description);
+	(comments_count == 1) ? delete comments : delete[] comments;
+}
+
+const photo& photo::operator=(const photo& other) {
+	free(this->name);
+	(other.name == nullptr) ? this->name = nullptr : this->name = _strdup(other.name);
+
+	free(description);
+	(other.description == nullptr) ? this->description = nullptr : this->description = _strdup(other.description);
+
+	views = other.views;
+	likes = other.likes;
+	upload_date = other.upload_date;
+
+	(comments_count == 1) ? delete comments : delete[] comments;
+
+	comments_count = other.comments_count;
+	if (comments_count == 0) {
+		this->comments = nullptr;
+	}
+	else {
+		if (comments_count == 1)
+			comments = new comment(other.comments[0]);
+		else {
+			comments = new comment[comments_count];
+			for (unsigned i = 0; i < comments_count; i++)
+			{
+				this->comments[i] = other.comments[i];
+			}
+		}
+	}
+
+	return *this;
+}
+
+void photo::print_post(){
+
+	printf("Название: %s\n", name);
+	printf("Просмотры: %u | Лайки: %u | Комментарии: %u\n", views, likes, comments_count);
+	upload_date.print_date();
+}
+
+void photo::input_post()
+{
+	printf("Ввод фото:\n");
+	upload_date.input_date();
+
+	printf("Ввести название фото? (Да - 1, нет - 2):");
+	int a;
+	while (scanf_s("%d", &a) != 1 || ((a != 1) && (a != 2))) {
+		while (getchar() != '\n');
+		printf("Ошибка. Выберите один из предложенных вариантов: ");
+	}
+	while (getchar() != '\n');
+	if (a == 1)
+	{
+		char name[30];
+		printf("Ввод: ");
+		fgets(name, 30, stdin);
+		*strchr(name, '\n') = '\0';
+		this->set_name(name);
+	}
+
+	printf("Ввести описание? (Да - 1, нет - 2)");
+	while (scanf_s("%d", &a) != 1 || ((a != 1) && (a != 2))) {
+		while (getchar() != '\n');
+		printf("Ошибка. Выберите один из предложенных вариантов: ");
+	}
+	while (getchar() != '\n');
+	if (a == 1)
+	{
+		char descr[300];
+		printf("Ввод: ");
+		fgets(descr, 300, stdin);
+		*strchr(descr, '\n') = '\0';
+		this->set_description(descr);
+	}
+
+}
+
+старый блоггер
+
+#pragma once
+#include "post.h"
+#include "time.h"
+
+
+class blogger {
+
+private:
+	char* name;               //название канала
+	char* description;        //описание канала
+	unsigned int followers;   //подписчики
+	unsigned int video_count; //кол-во видео
+	unsigned int photo_count; //видео канала
+	static int bloggers_count;
+	static void statincrem();
+	static void statdecrem();
+public:
+	video* videos;            //видео канала
+	photo* photos;            //фото канала
+	blogger();
+	blogger(char* name);
+	blogger(char* name, char* descr);
+	blogger(const blogger& other); //конструктор копирования
+	~blogger();
+	
+	static int getstat();
+	const blogger& operator = (const blogger& other); //перегрузка оператора = для этого класса
+	void add_video(const video& vid);  //добавить фото
+	void add_photo(const photo& pho);  //добавить видео
+	void set_name(char* name);         //сеттер названия канала
+	void set_description(char* descr); //сеттер описания канала
+	void follow(unsigned followers);   //подписаться
+	void print_videos();               //вывести все видео
+	void print_photos();               //вывести все фото
+	void print_all_posts();            //вывести все посты
+	void print_blogger();
+	void input_blogger();
+};
+
+#include "blogger.h"
+
+blogger::blogger()
+{
+	name = nullptr;
+	description = nullptr;
+	followers = 0;
+	videos = nullptr;
+	video_count = 0;
+	photos = nullptr;
+	photo_count = 0;
+	statincrem();
+}
+blogger::blogger(char* name):blogger()
+{
+	this->set_name(name);
+}
+blogger::blogger(char* name, char* descr):blogger(name)
+{
+	this->set_description(descr);
+}
+blogger::blogger(const blogger& other)
+{
+	*this = other;
+}
+blogger::~blogger()
+{
+	free(name);
+	free(description);
+	(video_count == 1) ? delete videos : delete[] videos;
+	(photo_count == 1) ? delete photos : delete[] photos;
+	statdecrem();
+}
+
+void blogger::statincrem()
+{
+	bloggers_count++;
+}
+
+void blogger::statdecrem()
+{
+	bloggers_count--;
+}
+
+int blogger::getstat()
+{
+	return bloggers_count;
+}
+
+const blogger& blogger::operator=(const blogger& other)
+{
+	free(this->name);
+	(other.name == nullptr) ? this->name = nullptr : this->name = _strdup(other.name);
+
+	free(this->description);
+	(other.description == nullptr) ? this->description = nullptr : this->description = _strdup(other.description);
+
+	this->followers = other.followers;
+
+	(video_count == 1) ? delete videos : delete[] videos;
+
+	this->video_count = other.video_count;
+	if (video_count == 0) {
+		this->videos = nullptr;
+	}
+	else {
+		if (video_count == 1)
+			videos = new video(other.videos[0]);
+		else {
+			videos = new video[video_count];
+			for (unsigned i = 0; i < video_count; i++)
+			{
+				this->videos[i] = other.videos[i];
+			}
+		}
+	}
+
+	(photo_count == 1) ? delete photos : delete[] photos;
+
+	this->photo_count = other.photo_count;
+	if (photo_count == 0) {
+		this->photos = nullptr;
+	}
+	else {
+		if (photo_count == 1)
+			photos = new photo(other.photos[0]);
+		else {
+			photos = new photo[photo_count];
+			for (unsigned i = 0; i < photo_count; i++)
+			{
+				this->photos[i] = other.photos[i];
+			}
+		}
+	}
+
+	return *this;
+}
+void blogger::add_video(const video& vid)
+{
+	video_count += 1;
+	if (this->videos == nullptr) {
+		videos = new video(vid);
+	}
+	else {
+		video* temp = new video[video_count];
+		for (unsigned i = 0; i < video_count - 1; i++)
+			temp[i] = videos[i];
+		temp[video_count - 1] = vid;
+		delete[] videos;
+		videos = new video[video_count];
+		for (unsigned i = 0; i < video_count; i++)
+			videos[i] = temp[i];
+		delete[] temp;
+	}
+}
+void blogger::add_photo(const photo& pho)
+{
+	photo_count += 1;
+	if (this->photos == nullptr) {
+		photos = new photo(pho);
+	}
+	else {
+		photo* temp = new photo[photo_count];
+		for (unsigned i = 0; i < photo_count - 1; i++)
+			temp[i] = photos[i];
+		temp[photo_count - 1] = pho;
+		delete[] photos;
+		photos = new photo[photo_count];
+		for (unsigned i = 0; i < photo_count; i++)
+			photos[i] = temp[i];
+		delete[] temp;
+	}
+}
+void blogger::set_name(char* name)
+{
+	if (this->name != nullptr)free(this->name);
+	this->name = _strdup(name);
+}
+void blogger::set_description(char* descr)
+{
+	if (this->description != nullptr)free(this->description);
+	this->description = _strdup(descr);
+}
+void blogger::follow(unsigned followers)
+{
+	this->followers += followers;
+
+}
+void blogger::print_videos()
+{
+	printf("\nВидео: ");
+	if (video_count == 0)
+	{
+		printf("Отсутствуют.\n");
+		return;
+	}
+	for (unsigned i = 0; i < video_count; i++)
+	{
+		printf("\n%d)", i);
+		videos[i].print_post();
+	}
+}
+void blogger::print_photos()
+{
+	printf("\nФото: ");
+	if (photo_count == 0)
+	{
+		printf("Отсутствуют.\n");
+		return;
+	}
+	for (unsigned i = 0; i < photo_count; i++)
+	{
+		printf("\n%d)", i);
+		photos[i].print_post();
+	}
+}
+void blogger::print_all_posts()
+{
+	this->print_photos();
+	this->print_videos();
+}
+
+void blogger::print_blogger()
+{
+	printf("\nНазвание блоггера: %s\n", name);
+	printf("Описание: %s\n", description);
+	printf("Подписчики: %u | Фото: %u | Видео: %u\n", followers, photo_count, video_count);
+}
+
+void blogger::input_blogger()
+{
+	printf("Ввод блоггера:\n");
+
+	printf("Ввести название блоггера? (Да - 1, нет - 2): ");
+	int a;
+	while (scanf_s("%d", &a) != 1 || ((a != 1) && (a != 2))) {
+		while (getchar() != '\n');
+		printf("Ошибка. Выберите один из предложенных вариантов: ");
+	}
+	while (getchar() != '\n');
+	if (a == 1)
+	{
+		char name[30];
+		printf("Ввод: ");
+		fgets(name, 30, stdin);
+		*strchr(name, '\n') = '\0';
+		this->set_name(name);
+	}
+
+	printf("Ввести описание? (Да - 1, нет - 2): ");
+	while (scanf_s("%d", &a) != 1 || ((a != 1) && (a != 2))) {
+		while (getchar() != '\n');
+		printf("Ошибка. Выберите один из предложенных вариантов: ");
+	}
+	while (getchar() != '\n');
+	if (a == 1)
+	{
+		char descr[300];
+		printf("Ввод: ");
+		fgets(descr, 300, stdin);
+		*strchr(descr, '\n') = '\0';
+		this->set_description(descr);
+	}
+}
