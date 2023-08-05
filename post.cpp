@@ -310,7 +310,7 @@ photo::photo() : post(){}
 photo::photo(const char* name) : post(name) {}
 photo::photo(const char* name, const char* descr) : post(name, descr) {}
 photo::photo(const char* name, const char* descr, date date) : post(name, descr, date){}
-photo::photo(const photo& other)
+photo::photo(const photo& other) : post()
 {
 	*this = other;
 }

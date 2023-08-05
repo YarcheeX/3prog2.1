@@ -10,8 +10,8 @@ protected:
 	unsigned int comments_count; //кол-во комментариев
 
 public:
-	char* name;                 //название поста
-	char* description;          //описание поста
+	char* name;                      //название поста
+	char* description;               //описание поста
 	date upload_date;                //дата выгрузки поста
 	comment** comments = nullptr;	 //комментарии
 

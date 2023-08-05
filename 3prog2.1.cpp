@@ -8,11 +8,10 @@
 int main()
 {
 
-
     setlocale(LC_ALL, "rus");
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
-
+    system("color f0");
  
 
     blogger* bloggers1 = new blogger[2]; //динамический массив объектов

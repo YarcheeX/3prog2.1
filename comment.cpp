@@ -24,7 +24,7 @@ comment::comment(date date, const char* text, const char* author) : comment(date
 	this->author = _strdup(author);
 }
 
-comment::comment(const comment& other)
+comment::comment(const comment& other) : comment()
 {
 	*this = other;
 }
