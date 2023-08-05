@@ -23,7 +23,7 @@ int main()
     
     photo picture; //создать представителя класса photo
     
-    picture.set_name("Как делать сльто");
+    picture.set_name("Как делать сальто");
     picture.set_description("Это может быть опасно");
     picture.upload_date.set_date(20, 10, 2014);
 
@@ -51,7 +51,7 @@ int main()
     bloggers1[1].print_blogger();   //вывести информацию о блогере
     bloggers1[1].print_all_posts(); //вывести все посты
     
-    printf("\n\nМассив динамических: объектов\n\n");
+    printf("\n\nМассив динамических объектов:\n\n");
     bloggers2[0]->print_blogger();   
     bloggers2[0]->print_all_posts();
     

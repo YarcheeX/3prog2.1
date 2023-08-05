@@ -1,8 +1,5 @@
 #pragma once
-#include "date.h"
 #include "answer.h"
-#include <string.h>
-//#include <stdlib.h>
 
 
 class comment {
