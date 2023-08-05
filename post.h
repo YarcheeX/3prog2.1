@@ -29,7 +29,7 @@ public:
 	void set_name(const char* name); //сеттер названия
 	void set_description(const char* descr); //сеттер описания
 	void add_comment(const comment& comm); //добавить комментарий
-	void watch(unsigned views); //просмотреть пост
+	virtual void watch(unsigned views); //просмотреть пост
 	void like(unsigned a); //лайкнуть
 
 };
